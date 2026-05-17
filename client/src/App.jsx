@@ -10,8 +10,10 @@ import AnnouncementTicker from './components/common/AnnouncementTicker';
 import CompactHeader from './components/common/CompactHeader';
 import CategoryPillRow from './components/common/CategoryPillRow';
 import Footer from './components/common/Footer';
+import PoweredByStrip from './components/common/PoweredByStrip';
 import WhatsAppButton from './components/common/WhatsAppButton';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // Public pages — Home eager for fast first paint; rest code-split
 import Home from './pages/Home';
@@ -55,6 +57,7 @@ const PublicLayout = ({ children }) => (
       <Suspense fallback={<PageLoader />}>{children}</Suspense>
     </main>
     <Footer />
+    <PoweredByStrip />
     <WhatsAppButton />
   </div>
 );
@@ -63,7 +66,8 @@ const App = () => (
   <ErrorBoundary>
   <HelmetProvider>
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <ScrollToTop />
         <Toaster
           position="top-right"
           toastOptions={{

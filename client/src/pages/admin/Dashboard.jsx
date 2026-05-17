@@ -74,7 +74,7 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 lg:p-8 max-w-[1200px]">
       <div className="mb-8">
-        <h1 className="h2 text-[#111827]">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-[#111827] font-[family-name:var(--font-heading)]">Dashboard</h1>
         <p className="text-[14px] text-[#6B7280] mt-1">
           {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>

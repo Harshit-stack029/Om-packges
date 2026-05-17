@@ -47,7 +47,14 @@
    declared inside @layer components (e.g. .section-y, .container-page) due
    to CSS cascade-layer ordering — unlayered always wins over layered.
    Tailwind v4 sets margin: 0 on body and h1–h6 via preflight already. */
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Keep hash-anchor landings clear of the sticky header (68px mobile / 76px desktop). */
+  scroll-padding-top: 84px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 body {
   font-family: var(--font-body);

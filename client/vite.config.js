@@ -3,8 +3,14 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { compression } from 'vite-plugin-compression2';
 
-export default defineConfig({
-  base: '/',
+// Hostinger deploys to public_html/ompack/ on disk. URL path depends on the
+// mapping:
+//   • subdomain (ompack.rhobel.com → public_html/ompack/)  →  base '/'  (default)
+//   • main domain at /ompack/                              →  base '/ompack/'
+// Override at build time: `VITE_BASE=/ompack/ npm run build`
+export default defineConfig(({ command }) => ({
+  base: process.env.VITE_BASE ?? '/',
+
   plugins: [
     react(),
     tailwindcss(),
@@ -19,10 +25,14 @@ export default defineConfig({
     },
   },
 
+  // Strip console.* and debugger from production bundles (no-op in dev).
+  esbuild: command === 'build' ? { drop: ['console', 'debugger'] } : {},
+
   build: {
     target: 'es2020',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
+    sourcemap: false,
     rolldownOptions: {
       output: {
         manualChunks: (id) => {
@@ -41,4 +51,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
