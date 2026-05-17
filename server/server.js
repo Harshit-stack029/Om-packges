@@ -35,8 +35,10 @@ app.use(compression());
 app.set('trust proxy', 1);
 
 // CORS — allow frontend origins.
-// Production frontend is hosted at ompack.rhobel.com; localhost is for dev.
-// Extra origins can be added via CORS_EXTRA_ORIGINS (comma-separated) without a code change.
+// Production frontend is hosted at ompack.rhobel.com.
+// In development we allow any http://localhost:* and http://127.0.0.1:* so
+// vite port fallbacks (5173 → 5174 → …) don't break local dev.
+// Extra prod origins can be added via CORS_EXTRA_ORIGINS (comma-separated).
 const allowedOrigins = [
   'http://localhost:5173',
   'https://ompack.rhobel.com',
@@ -47,10 +49,16 @@ const allowedOrigins = [
     .map((o) => o.trim())
     .filter(Boolean),
 ];
+const isDevLocalhost = (origin) =>
+  process.env.NODE_ENV !== 'production' &&
+  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      if (!origin || allowedOrigins.includes(origin) || isDevLocalhost(origin)) {
+        return cb(null, true);
+      }
       cb(new Error(`CORS policy violation: ${origin}`));
     },
     credentials: true,
