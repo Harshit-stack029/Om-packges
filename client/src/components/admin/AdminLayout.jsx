@@ -54,10 +54,10 @@ const AdminLayout = () => {
 
   const Sidebar = ({ onLinkClick }) => (
     <div className="flex flex-col h-full bg-white border-r border-[#E5E7EB] border-t-[3px] border-t-[#C0392B]">
-      {/* Brand */}
-      <div className="px-5 py-4 border-b border-[#E5E7EB]">
+      {/* Brand — kept compact so it fits inside the 240px sidebar */}
+      <div className="px-4 py-4 border-b border-[#E5E7EB]">
         <div className="flex flex-col gap-0.5">
-          <Logo size={36} />
+          <Logo size={26} />
           <p className="text-[10px] text-[#6B7280] uppercase tracking-[0.1em] pl-0.5">Admin Console</p>
         </div>
       </div>
