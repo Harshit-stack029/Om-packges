@@ -5,7 +5,7 @@ import {
   Award, Mail, Send, Settings, LogOut, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import Logo from '../common/Logo';
+import omLogo from '../../assets/om-packings.webp';
 import toast from 'react-hot-toast';
 
 const NAV = [
@@ -54,11 +54,26 @@ const AdminLayout = () => {
 
   const Sidebar = ({ onLinkClick }) => (
     <div className="flex flex-col h-full bg-white border-r border-[#E5E7EB] border-t-[3px] border-t-[#C0392B]">
-      {/* Brand — kept compact so it fits inside the 240px sidebar */}
+      {/* Brand — admin-specific compact mark, sized to fit the 240px sidebar */}
       <div className="px-4 py-4 border-b border-[#E5E7EB]">
-        <div className="flex flex-col gap-0.5">
-          <Logo size={26} />
-          <p className="text-[10px] text-[#6B7280] uppercase tracking-[0.1em] pl-0.5">Admin Console</p>
+        <div className="flex items-center gap-2.5">
+          <img
+            src={omLogo}
+            alt=""
+            aria-hidden="true"
+            width="28"
+            height="28"
+            decoding="async"
+            className="w-7 h-7 object-contain flex-shrink-0"
+            draggable={false}
+          />
+          <div className="min-w-0 leading-tight">
+            <p className="font-[family-name:var(--font-heading)] text-[13px] tracking-[0.04em]">
+              <span className="font-bold" style={{ color: '#C0392B' }}>OM</span>
+              <span className="font-medium ml-1" style={{ color: '#1B2A4A' }}>PACKAGING</span>
+            </p>
+            <p className="text-[9px] text-[#6B7280] uppercase tracking-[0.14em] mt-0.5">Admin Console</p>
+          </div>
         </div>
       </div>
 
