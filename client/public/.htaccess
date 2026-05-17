@@ -1,0 +1,132 @@
+# =============================================================
+#  OM Packaging — Hostinger Apache config for SPA + assets
+#  Subdomain: ompack.rhobel.com
+# =============================================================
+
+# ---------- Default document ----------
+DirectoryIndex index.html
+
+# ---------- Force HTTPS ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# ---------- SPA fallback (React Router BrowserRouter) ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Pre-compressed Brotli
+  RewriteCond %{HTTP:Accept-Encoding} br
+  RewriteCond %{REQUEST_FILENAME}.br -f
+  RewriteRule ^(.*)$ $1.br [QSA,L]
+
+  # Pre-compressed Gzip
+  RewriteCond %{HTTP:Accept-Encoding} gzip
+  RewriteCond %{REQUEST_FILENAME}.gz -f
+  RewriteRule ^(.*)$ $1.gz [QSA,L]
+
+  # Skip rewrite for real files / dirs / asset folder
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything else → index.html (SPA)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ---------- Correct MIME + no double-compression on .br / .gz ----------
+<IfModule mod_headers.c>
+  <FilesMatch "\.js\.br$">
+    Header set Content-Encoding br
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+  <FilesMatch "\.css\.br$">
+    Header set Content-Encoding br
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+  <FilesMatch "\.svg\.br$">
+    Header set Content-Encoding br
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+  <FilesMatch "\.js\.gz$">
+    Header set Content-Encoding gzip
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+  <FilesMatch "\.css\.gz$">
+    Header set Content-Encoding gzip
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+  <FilesMatch "\.svg\.gz$">
+    Header set Content-Encoding gzip
+    Header append Vary Accept-Encoding
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+  AddType image/svg+xml .svg
+  AddType application/manifest+json .webmanifest
+  AddType font/woff2 .woff2
+
+  # Tell Apache the real type behind .gz / .br
+  AddType application/javascript .js.gz .js.br
+  AddType text/css .css.gz .css.br
+  AddType image/svg+xml .svg.gz .svg.br
+
+  # Prevent Apache from re-encoding files it served pre-compressed
+  RemoveEncoding .gz .br
+</IfModule>
+
+# ---------- Fallback: live compression for everything else ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/json application/javascript application/xml image/svg+xml
+</IfModule>
+
+# ---------- Cache headers ----------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Hashed assets — cache forever
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/avif                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 month"
+  ExpiresByType font/woff2                "access plus 1 year"
+  ExpiresByType application/manifest+json "access plus 1 week"
+  # index.html must NOT be long-cached (so deploys are picked up)
+  ExpiresByType text/html                 "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2|png|jpe?g|webp|avif|svg)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
+
+# ---------- Security headers ----------
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ---------- Block hidden files ----------
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ---------- Custom 404 → SPA handles it ----------
+ErrorDocument 404 /index.html

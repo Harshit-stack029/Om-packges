@@ -1,0 +1,64 @@
+# Render Blueprint — OM Packaging API
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: in Render dashboard → New + → Blueprint → point at this repo
+# (or set the "Root Directory" to `server` if deploying just the backend folder).
+
+services:
+  - type: web
+    name: ompack-api
+    runtime: node
+    plan: free
+    region: singapore        # closest free region to India users — change if needed
+    rootDir: server          # ignored if this file sits inside /server already
+    buildCommand: npm ci
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SITE_URL
+        value: https://ompack.rhobel.com
+      # Secrets — set values in Render dashboard (sync: false keeps them out of git)
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: INQUIRY_EMAIL
+        sync: false
+      - key: INQUIRY_CC
+        sync: false
+      - key: AUTOREPLY_FROM
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: WHATSAPP_NUMBER
+        sync: false
+      # Optional: add extra CORS origins at runtime without a redeploy
+      - key: CORS_EXTRA_ORIGINS
+        sync: false

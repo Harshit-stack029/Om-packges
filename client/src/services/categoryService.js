@@ -1,0 +1,15 @@
+import api from './api';
+
+export const categoryService = {
+  getAll: (params = {}) => api.get('/categories', { params }),
+
+  getById: (id) => api.get(`/categories/${id}`),
+
+  create: (formData) =>
+    api.post('/categories', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+
+  update: (id, formData) =>
+    api.put(`/categories/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+
+  delete: (id) => api.delete(`/categories/${id}`),
+};

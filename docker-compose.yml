@@ -1,0 +1,46 @@
+services:
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: om-packaging-api:latest
+    container_name: om-packaging-api
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - om-net
+
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_SITE_URL: ${SITE_URL:-https://www.ompack.in}
+        VITE_GA_ID: ${VITE_GA_ID:-}
+    image: om-packaging-web:latest
+    container_name: om-packaging-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - om-net
+
+networks:
+  om-net:
+    driver: bridge
